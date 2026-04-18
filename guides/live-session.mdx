@@ -1,0 +1,75 @@
+---
+title: "Start, steer, and stop a Lyria Realtime live session"
+description: "Connect your Lyria Studio node graph to Google Lyria Realtime, start a live session, and steer the AI music mid-session without restarting the stream."
+---
+
+A live session streams AI-generated audio directly from Google Lyria Realtime into Lyria Studio. Once you press **Go Live**, music starts flowing within a few seconds, and you can shape it continuously by editing your graph — no need to stop and restart. This guide walks you through everything from first connection to mid-session steering.
+
+## Session modes
+
+Lyria Studio supports three session modes depending on how you build your graph.
+
+| Mode | Graph contents | Backend |
+|---|---|---|
+| **Instrumental** | Prompt/Instrument nodes → Output | Streams from `models/lyria-realtime-exp` |
+| **Vocals only** | Vocals node → Output | One-shot REST call to `models/lyria-3-pro-preview` |
+| **Mixed** | Both paths → Output | Both run concurrently |
+
+In instrumental and mixed sessions, the instrumental stream is continuous. In vocals-only mode, no streaming session is opened — a single clip is generated via REST and becomes available to capture.
+
+## Starting a session
+
+<Steps>
+  <Step title="Save your Gemini API key">
+    Enter your Gemini API key in the toolbar's API key field. Lyria Studio loads it automatically on the next launch, so you only need to do this once.
+  </Step>
+  <Step title="Build a graph">
+    At minimum, connect a **Prompt** node to the **Output** node. For richer results, insert an **Instrument** node between them to specify an instrument voice. For vocals, add a **Vocals** node connected to **Output** instead.
+  </Step>
+  <Step title="Set the BPM">
+    Use the transport bar to set the tempo. The BPM is sent to the model as part of the generation request and influences the rhythmic feel of the output.
+  </Step>
+  <Step title="Press Go Live">
+    Click **Go Live** in the transport bar. The status pill shows **Connecting…** while the session initialises.
+  </Step>
+  <Step title="Wait for audio">
+    The status pill changes to **Live** once the connection is established. Audio typically starts streaming within a few seconds.
+  </Step>
+  <Step title="Steer the sound mid-session">
+    Edit the text in any Prompt node, or adjust the weight of an edge in the graph. Changes are debounced for 600 ms and then sent to the model automatically — the music evolves without dropping the session.
+  </Step>
+  <Step title="Stop the session">
+    Press **Go Live** again (or press **Escape**) to end the session. Any in-progress capture is finalised automatically.
+  </Step>
+</Steps>
+
+<Tip>
+  Adjusting prompt weights while live is one of the most expressive controls available. Gradually fading one Prompt node's edge weight down while raising another's is a smooth way to transition between musical ideas without abrupt changes.
+</Tip>
+
+<Note>
+  If the status pill shows an error instead of **Live**, check that your API key is valid and that at least one node (Prompt, Instrument, or Vocals) is connected to the Output node. A graph with no connected nodes produces the error "Nothing connected to the Output node".
+</Note>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="The session shows 'Connecting…' for a long time">
+    This usually indicates a network issue or an invalid API key. Verify your key in the toolbar, check your internet connection, and press **Go Live** again to retry.
+  </Accordion>
+  <Accordion title="Audio starts then cuts out">
+    The live player uses a 300 ms underrun-recovery buffer to handle IPC jitter. If audio cuts out repeatedly, close other audio applications that might be competing for device access, then restart the session.
+  </Accordion>
+  <Accordion title="Prompt changes don't seem to affect the music">
+    Changes are debounced and only sent if the weighted prompt state actually changed. If you edited a node but the computed prompts are identical to the last sent state, no update is dispatched. Try adjusting an edge weight to force a new value.
+  </Accordion>
+</AccordionGroup>
+
+<CardGroup cols={2}>
+  <Card title="Capture audio" icon="circle-dot" href="/guides/capturing-audio">
+    Record the live stream onto your timeline.
+  </Card>
+  <Card title="Add vocals" icon="microphone" href="/guides/vocals">
+    Generate AI vocals alongside your instrumental stream.
+  </Card>
+</CardGroup>

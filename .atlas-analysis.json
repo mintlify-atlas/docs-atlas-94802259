@@ -1,0 +1,89 @@
+{
+  "projectType": "saas",
+  "projectName": "Lyria Studio",
+  "projectDescription": "A node-based desktop music application that uses Google Lyria Realtime AI to generate, capture, arrange, and export AI-created music.",
+  "theme": "willow",
+  "primaryColor": "#7c3aed",
+  "lightColor": "#a78bfa",
+  "darkColor": "#4c1d95",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/graph-editor",
+              "concepts/nodes",
+              "concepts/timeline"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/live-session",
+              "guides/capturing-audio",
+              "guides/vocals",
+              "guides/automation",
+              "guides/exporting"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "reference/keyboard-shortcuts",
+              "reference/node-types",
+              "reference/audio-engine",
+              "reference/configuration"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Node-based graph editor for composing AI music generation prompts",
+    "Weighted connections between nodes to control prompt influence",
+    "Live streaming music generation via Google Lyria Realtime",
+    "Separate vocals generation flow using Lyria Pro REST API",
+    "Multi-track timeline with clips, playback, and a moveable playhead",
+    "Clip automation lanes for volume and pitch",
+    "Live instrumental capture directly from the streaming session",
+    "One-click vocals clip capture onto the active timeline track",
+    "Mix export to WAV and compressed audio formats (MP4/WebM)",
+    "Local Gemini API key persistence across sessions",
+    "Undo/redo history for graph and timeline changes",
+    "Cross-platform Electron desktop app (macOS, Windows, Linux)"
+  ],
+  "publicApiSurface": [
+    "window.lyria.startLive(apiKey, prompts, bpm)",
+    "window.lyria.stopLive()",
+    "window.lyria.updatePrompts(prompts, bpm)",
+    "window.lyria.generateVocalsClip(apiKey, prompts, model)",
+    "window.lyria.onEvent(callback)",
+    "window.store.getApiKey()",
+    "window.store.setApiKey(key)",
+    "window.store.saveFile(suggestedName, data, filters)",
+    "window.updates.getStartupState()",
+    "window.updates.checkNow()",
+    "window.tutorial.markCompleted()",
+    "AudioEngine.play(tracks, fromSec, onPlayheadUpdate)",
+    "AudioEngine.pause()",
+    "AudioEngine.stop()",
+    "renderMixdown(tracks)",
+    "encodeWav(buffer)",
+    "useGraphStore (Zustand store)",
+    "useTimelineStore (Zustand store)",
+    "useSessionStore (Zustand store)",
+    "useLyriaSession() hook"
+  ]
+}

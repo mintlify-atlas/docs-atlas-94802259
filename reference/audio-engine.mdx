@@ -1,0 +1,225 @@
+---
+title: "AudioEngine, automation, and export pipeline reference"
+description: "Reference for the AudioEngine class, automation envelope sampling, and the export pipeline functions used for timeline playback and rendering in Lyria Studio."
+---
+
+Lyria Studio's audio system is built on top of the Web Audio API and runs entirely inside the Electron renderer process. The `AudioEngine` class handles real-time timeline playback, while a separate set of export functions handle offline rendering and file output. Understanding this layer is useful if you want to know exactly how playback is scheduled, how volume and pitch automation are applied, or how the export pipeline produces WAV and compressed audio files.
+
+---
+
+## AudioEngine
+
+The `AudioEngine` class manages a single `AudioContext` (sample rate: 48 000 Hz) and schedules all clips from the timeline onto it when you start playback.
+
+### Constructor and context
+
+The engine lazily creates its `AudioContext` on first use and re-creates it if it has been closed. You do not need to construct it yourself — a singleton instance (`audioEngine`) is exported from `AudioEngine.ts` and used throughout the app.
+
+### Methods
+
+<AccordionGroup>
+  <Accordion title="play(tracks, fromSec, onPlayheadUpdate, onPlaybackEnded)">
+
+Starts playback from `fromSec` seconds into the timeline.
+
+```typescript
+audioEngine.play(
+  tracks,          // Track[] — the full list of timeline tracks
+  playheadSec,     // number  — start position in seconds
+  (sec) => { ... }, // called on each animation frame with the current position
+  () => { ... }    // called once when all clips have finished (optional)
+)
+```
+
+**What it does internally:**
+
+Calls `stop()` to cancel any existing playback first. Resumes the `AudioContext` if it was suspended. Respects solo and mute states: muted tracks are skipped; if any track is soloed, only soloed tracks play. For each clip, schedules an `AudioBufferSourceNode` with crop and speed offsets applied. If pitch automation is present, a pre-rendered pitch-shifted buffer is used. Volume and pitch automation breakpoints are scheduled using `setValueAtTime` and `linearRampToValueAtTime`. Starts a `requestAnimationFrame` loop that updates the playhead position and auto-stops when the last clip ends.
+
+  </Accordion>
+  <Accordion title="pause()">
+
+Stops all scheduled sources and suspends the `AudioContext`.
+
+```typescript
+audioEngine.pause()
+```
+
+Cancels the RAF loop, stops and discards all `AudioBufferSourceNode` instances, and calls `AudioContext.suspend()`. The playhead position is frozen at its last reported value.
+
+  </Accordion>
+  <Accordion title="stop()">
+
+Alias for `pause()`. Calling either method has the same effect.
+
+```typescript
+audioEngine.stop()
+```
+
+  </Accordion>
+  <Accordion title="getCurrentTimeSec()">
+
+Returns the current playhead position in seconds without running a RAF loop. Useful for a one-shot read of position (for example, when splitting a clip).
+
+```typescript
+const position = audioEngine.getCurrentTimeSec() // → number
+```
+
+  </Accordion>
+  <Accordion title="isPlaying (getter)">
+
+Returns `true` if the RAF loop is active (i.e., playback is in progress), `false` otherwise.
+
+```typescript
+if (audioEngine.isPlaying) {
+  // playback is running
+}
+```
+
+  </Accordion>
+</AccordionGroup>
+
+### Sample rate
+
+The `AudioContext` is created with `sampleRate: 48000`. All offline rendering in the export pipeline also uses 48 000 Hz to match.
+
+---
+
+## Automation
+
+Volume and pitch over time are controlled by automation envelopes — ordered lists of breakpoints, each with a time (in seconds) and a value. The `sampleEnvelope` function in `Automation.ts` is used everywhere automation values are read.
+
+### sampleEnvelope
+
+```typescript
+sampleEnvelope(
+  points: AutomationPoint[] | undefined,
+  timeSec: number,
+  defaultValue?: number  // default: 1
+): number
+```
+
+**Behavior:**
+
+- If `points` is empty or undefined, returns `defaultValue`.
+- If `timeSec` is before the first breakpoint, returns the first breakpoint's value (no extrapolation before the start).
+- If `timeSec` is after the last breakpoint, returns the last breakpoint's value (no extrapolation after the end).
+- Otherwise, linearly interpolates between the two surrounding breakpoints.
+
+This function is called both during real-time playback (to schedule Web Audio API parameter ramps) and during offline rendering (to compute gain values for the mixdown).
+
+---
+
+## Export pipeline
+
+The export pipeline converts the in-memory timeline into an audio file. It uses an `OfflineAudioContext` for rendering, which processes audio faster than real-time without going through speakers.
+
+### renderMixdown
+
+```typescript
+renderMixdown(tracks: Track[]): Promise<AudioBuffer>
+```
+
+Renders the entire mix to an `AudioBuffer` using `OfflineAudioContext` at 48 000 Hz. Applies mute, solo, volume automation, pitch automation, speed, and crop offsets — identical logic to the real-time engine. Throws if there are no clips to export.
+
+### encodeWav
+
+```typescript
+encodeWav(buffer: AudioBuffer): Blob
+```
+
+Converts an `AudioBuffer` to a WAV `Blob` using PCM 16-bit interleaved encoding. The output is a standard RIFF/WAVE file with a 44-byte header.
+
+### getSupportedMediaExportFormat
+
+```typescript
+getSupportedMediaExportFormat(): { mime: string; ext: string; label: string } | null
+```
+
+Returns the best `MediaRecorder`-supported format available in the current environment, or `null` if `MediaRecorder` is not available. The candidates are checked in priority order:
+
+| Priority | Format | Extension |
+|----------|--------|-----------|
+| 1 | `audio/mp4;codecs=mp4a.40.2` | `.mp4` |
+| 2 | `audio/mp4` | `.mp4` |
+| 3 | `audio/webm;codecs=opus` | `.webm` |
+| 4 | `audio/webm` | `.webm` |
+
+### recordMediaFromBuffer
+
+```typescript
+recordMediaFromBuffer(
+  buffer: AudioBuffer,
+  onProgress?: (ratio: number) => void  // 0.0–1.0
+): Promise<{ blob: Blob; extension: string; mimeType: string }>
+```
+
+Encodes an `AudioBuffer` to compressed audio by routing it through a `MediaRecorder`. The `onProgress` callback is called each animation frame with a `0.0`–`1.0` ratio. Throws if no supported `MediaRecorder` format is available.
+
+### downloadBlob
+
+```typescript
+downloadBlob(blob: Blob, filename: string): void
+```
+
+Triggers a browser-style download by creating a temporary anchor element. Used as a fallback when the Electron save dialog is not available.
+
+### saveBlob
+
+```typescript
+saveBlob(
+  blob: Blob,
+  suggestedName: string,
+  filters?: Array<{ name: string; extensions: string[] }>
+): Promise<{ canceled: boolean; filePath?: string }>
+```
+
+Opens a native Electron save dialog. Converts the `Blob` to a `Uint8Array` and sends it to the main process via `window.store.saveFile`. Returns `{ canceled: true }` if the user dismisses the dialog.
+
+---
+
+## Export pipeline example
+
+The typical export flow renders the mix offline and then encodes it, either to WAV (lossless) or to a compressed format via `MediaRecorder`.
+
+<Tabs>
+  <Tab title="Export as WAV">
+
+```typescript
+import { renderMixdown, encodeWav, saveBlob } from '@/audio/Exporter'
+
+const buffer = await renderMixdown(tracks)
+const wavBlob = encodeWav(buffer)
+
+await saveBlob(wavBlob, 'my-track.wav', [
+  { name: 'WAV Audio', extensions: ['wav'] },
+])
+```
+
+  </Tab>
+  <Tab title="Export as compressed audio">
+
+```typescript
+import {
+  renderMixdown,
+  getSupportedMediaExportFormat,
+  recordMediaFromBuffer,
+  saveBlob,
+} from '@/audio/Exporter'
+
+const format = getSupportedMediaExportFormat()
+if (!format) throw new Error('No supported export format')
+
+const buffer = await renderMixdown(tracks)
+const { blob, extension } = await recordMediaFromBuffer(buffer, (ratio) => {
+  console.log(`Encoding: ${Math.round(ratio * 100)}%`)
+})
+
+await saveBlob(blob, `my-track.${extension}`)
+```
+
+  </Tab>
+</Tabs>
+
+<Note>
+Both `renderMixdown` and `recordMediaFromBuffer` are asynchronous. `renderMixdown` runs faster than real-time using `OfflineAudioContext`, but `recordMediaFromBuffer` runs at real-time speed because `MediaRecorder` requires live audio playback.
+</Note>

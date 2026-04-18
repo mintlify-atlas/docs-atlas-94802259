@@ -1,0 +1,127 @@
+---
+title: "Node types: Prompt, Instrument, Vocals, and Output"
+description: "Reference for all four Lyria Studio node types — Prompt, Instrument, Vocals, and Output — with fields, connection rules, and edge weight behavior."
+---
+
+Lyria Studio's graph editor has four node types, each playing a distinct role in the AI generation pipeline. Prompt nodes describe musical direction in free text; Instrument nodes select a sonic category; Vocals nodes generate a one-shot a cappella clip; and the Output node is the root that everything feeds into. Understanding what each node does and how they connect is the key to shaping what the AI produces.
+
+## Prompt node
+
+A Prompt node holds a free-text description of a musical idea — mood, tempo, genre, instrumentation, or anything else you want the model to take into account. You type your description directly into the text area on the node.
+
+**Field:** `text` — the prompt string sent to the model.
+
+Prompt nodes are the most flexible node in the graph. You can connect a single Prompt node to an Instrument node, to a Vocals node, to the Output node directly, or to multiple downstream nodes at once. When a Prompt node feeds both an Instrument chain and a Vocals chain, its text is included in both prompt lists — useful for applying a shared mood or style across the whole mix.
+
+<Note>
+  Multiple Prompt nodes can feed the same downstream node. Their individual edge weights determine how much each one influences the mix. Higher weight means stronger influence; lower weight softens it.
+</Note>
+
+## Instrument node
+
+An Instrument node selects a built-in sonic category and sends that selection as a weighted prompt to the instrumental generation model. The node renders an icon that matches the selected instrument.
+
+**Field:** `instrument` — the selected instrument name.
+
+The available instruments are:
+
+<Tabs>
+  <Tab title="Melodic">
+    - Piano
+    - Guitar
+    - Strings
+    - Brass
+    - Flute
+    - Choir
+  </Tab>
+  <Tab title="Rhythmic & Electronic">
+    - Drums
+    - Bass
+    - Synth Pad
+    - Ambient
+  </Tab>
+</Tabs>
+
+Instrument nodes connect to the Output node. They can receive input from Prompt nodes, which lets you narrow the character of a specific instrument — for example, connecting a "melancholic fingerpicking" Prompt node into a Guitar Instrument node.
+
+<Warning>
+  Instrument nodes may never be connected directly to Vocals nodes, and vice versa. The app rejects this connection. Route shared ideas through Prompt nodes instead.
+</Warning>
+
+## Vocals node
+
+A Vocals node generates a one-shot a cappella clip using the Lyria Pro model (`models/lyria-3-pro-preview`) via a separate REST call, rather than the live realtime stream. It is designed for generating sung or spoken vocal content that you then drop onto the timeline.
+
+**Fields:**
+
+- `lyrics` — the words to sing or speak
+- `additionalPrompts` — voice character, style, mood, or any other guidance (e.g., "warm contralto, intimate, slightly breathy")
+
+Vocals nodes connect directly to the Output node only. A system prompt is automatically injected at high weight to constrain the model to pure human vocals — no instruments, no backing track, no sound effects.
+
+<Accordion title="Why can't Vocals nodes connect to Instrument nodes?">
+  The instrumental path (Instrument nodes → Output) drives a continuous realtime stream via Google Lyria Realtime. The vocals path triggers a separate one-shot REST call to a different model. There is no shared routing between the two, so a direct Vocals-to-Instrument connection would have no defined behavior. The app blocks it to prevent confusion.
+</Accordion>
+
+## Output node
+
+The Output node is the root — or "sink" — of the graph. All other nodes must eventually connect to it, directly or indirectly, for their content to influence generation. It cannot be deleted.
+
+The Output node has no user-editable fields. Its role is purely structural: it is the target that Lyria Studio looks for when traversing the graph to collect prompt lists.
+
+## Edge weights
+
+Every connection you draw between nodes carries a **weight** value between 0.0 and 1.0. The default weight when you create a new edge is **1.0**. You can change it by clicking the edge and editing the weight in the Properties Panel.
+
+Weight controls how strongly a node's contribution is represented in the final prompt mix relative to other nodes at the same level. A weight closer to 0 softens the influence; a weight of 0 removes it entirely without deleting the connection.
+
+## Connection example
+
+Here is a simple graph that produces a piano-led instrumental track with a shared mood prompt:
+
+```
+"Melancholic and sparse"  →  Instrument (Piano)  →  Output
+```
+
+To add a second instrument with less influence:
+
+```
+"Melancholic and sparse"  →  Instrument (Piano)   [weight 1.0]  →  Output
+                          →  Instrument (Strings)  [weight 0.4]  →  Output
+```
+
+Both Instrument nodes receive the same Prompt input, but Strings contributes at less than half the weight of Piano in the final mix.
+
+## Connection rules summary
+
+<AccordionGroup>
+  <Accordion title="What can connect to Output?">
+    Prompt nodes, Instrument nodes, and Vocals nodes can all connect directly to the Output node.
+  </Accordion>
+  <Accordion title="What can connect to Instrument nodes?">
+    Prompt nodes can connect to Instrument nodes. Nothing else can. Instrument nodes cannot accept connections from Vocals nodes or from other Instrument nodes.
+  </Accordion>
+  <Accordion title="What can connect to Vocals nodes?">
+    Prompt nodes can connect to Vocals nodes to add style or mood guidance. Instrument nodes cannot connect to Vocals nodes.
+  </Accordion>
+  <Accordion title="Can I connect a node to itself?">
+    No. Self-loops are blocked by the app.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Graph editor" icon="diagram-project" href="/concepts/graph-editor">
+    Learn how the canvas, palette, and weighted edges work together
+  </Card>
+  <Card title="Timeline" icon="film" href="/concepts/timeline">
+    Arrange vocals and instrumental clips on the multi-track timeline
+  </Card>
+  <Card title="Vocals guide" icon="microphone" href="/guides/vocals">
+    End-to-end walkthrough for generating and placing vocals clips
+  </Card>
+  <Card title="Live session guide" icon="circle-play" href="/guides/live-session">
+    Start and steer a live instrumental generation session
+  </Card>
+</CardGroup>

@@ -1,0 +1,63 @@
+---
+title: "Complete keyboard shortcuts reference for Lyria Studio"
+description: "Complete reference for every keyboard shortcut in Lyria Studio, covering playback, recording, editing, timeline navigation, and undo/redo."
+---
+
+Lyria Studio responds to keyboard shortcuts anywhere in the app window, as long as your cursor is not focused inside a text input, textarea, or select element. When you are typing into a field — such as a Prompt node's text box or a Vocals node's lyrics field — shortcuts are intentionally suppressed so your keystrokes reach the input instead.
+
+## Playback and recording
+
+| Key | Action |
+|-----|--------|
+| `Space` | **Play / Pause** — starts playback from the current playhead position. If a live recording session is active, pressing `Space` stops the recording instead. |
+| `R` | **Start / Stop recording** — toggles a live Lyria session. Press once to begin recording; press again to stop. |
+| `Escape` | **Stop** — stops an active live recording session or halts timeline playback. |
+
+<Note>
+`Cmd+R` (macOS) and `Ctrl+R` (Windows/Linux) are intentionally not intercepted. Those key combinations are passed through to the system or browser so that native reload behavior is preserved.
+</Note>
+
+## Timeline navigation
+
+| Key | Action |
+|-----|--------|
+| `Home` | **Return to start** — stops playback and moves the playhead back to position 0. |
+| `Numpad 0` | **Return to start** — identical to `Home`. |
+
+## Clip editing
+
+| Key | Action |
+|-----|--------|
+| `S` | **Split clip** — splits the clip under the playhead at the current playhead position. Has no effect if no clip spans that position. |
+
+<Note>
+`Cmd+S` (macOS) and `Ctrl+S` (Windows/Linux) are intentionally not intercepted, so the system save shortcut works normally.
+</Note>
+
+## History
+
+| Key | Action |
+|-----|--------|
+| `Cmd+Z` / `Ctrl+Z` | **Undo** — steps back one action in the history stack. |
+| `Cmd+Shift+Z` / `Ctrl+Shift+Z` | **Redo** — re-applies the most recently undone action. |
+| `Cmd+Y` / `Ctrl+Y` | **Redo (alternate)** — same as `Cmd+Shift+Z`. Provided as a convenience for Windows users familiar with this binding. |
+
+## Quick reference
+
+<AccordionGroup>
+  <Accordion title="All shortcuts at a glance">
+
+| Key | Action |
+|-----|--------|
+| `Space` | Play / Pause (or stop recording) |
+| `R` | Start / Stop live recording |
+| `Escape` | Stop recording or stop playback |
+| `Home` | Return playhead to start |
+| `Numpad 0` | Return playhead to start |
+| `S` | Split clip at playhead |
+| `Cmd/Ctrl+Z` | Undo |
+| `Cmd/Ctrl+Shift+Z` | Redo |
+| `Cmd/Ctrl+Y` | Redo (alternate) |
+
+  </Accordion>
+</AccordionGroup>

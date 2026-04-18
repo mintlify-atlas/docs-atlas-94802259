@@ -1,0 +1,115 @@
+---
+title: "Install Lyria Studio on macOS, Windows, or Linux"
+description: "Download a prebuilt Lyria Studio installer for your platform, or clone the repository and run the app directly from source with Node.js and npm."
+---
+
+Lyria Studio ships prebuilt installers for macOS, Windows, and Linux. You can also run it directly from source if you prefer to build it yourself or want to contribute. Both paths are covered below.
+
+## Download a prebuilt release
+
+Visit the [releases page on GitHub](https://github.com/AlanRoybal/lyria-studio/releases) and download the installer for your platform.
+
+<Tabs>
+  <Tab title="macOS">
+    Download the `.dmg` file for your architecture:
+
+    - `lyria-studio-mac-x64.dmg` — Intel Mac
+    - `lyria-studio-mac-arm64.dmg` — Apple Silicon (M1 and later)
+
+    Open the DMG, drag **Lyria Studio** to your Applications folder, and launch it from there.
+
+    <Note>
+      macOS may show a security prompt the first time you open the app because it is not distributed through the Mac App Store. Open **System Settings → Privacy & Security** and click **Open Anyway** if prompted.
+    </Note>
+  </Tab>
+  <Tab title="Windows">
+    Download `lyria-studio-win-x64.exe` and run it.
+
+    The NSIS installer lets you choose an installation directory and creates a desktop shortcut. After installation, launch **Lyria Studio** from the Start menu or the shortcut on your desktop.
+  </Tab>
+  <Tab title="Linux">
+    Three package formats are available for x64:
+
+    | Format | File | How to install |
+    |---|---|---|
+    | AppImage | `lyria-studio-linux-x64.AppImage` | `chmod +x` and run directly |
+    | Debian/Ubuntu | `lyria-studio-linux-x64.deb` | `sudo dpkg -i lyria-studio-linux-x64.deb` |
+    | Fedora/RHEL | `lyria-studio-linux-x64.rpm` | `sudo rpm -i lyria-studio-linux-x64.rpm` |
+
+    The AppImage requires no installation — make it executable and run it:
+
+    ```bash
+    chmod +x lyria-studio-linux-x64.AppImage
+    ./lyria-studio-linux-x64.AppImage
+    ```
+  </Tab>
+</Tabs>
+
+## Build from source
+
+Building from source requires [Node.js](https://nodejs.org/) 20 or later.
+
+<Steps>
+  <Step title="Clone the repository">
+    ```bash
+    git clone https://github.com/AlanRoybal/lyria-studio.git
+    cd lyria-studio
+    ```
+  </Step>
+  <Step title="Install dependencies">
+    ```bash
+    npm install
+    ```
+  </Step>
+  <Step title="Start the development app">
+    ```bash
+    npm run dev
+    ```
+
+    This compiles the Electron main process and starts the Vite dev server. The desktop window opens automatically. Hot-reload is active for renderer changes.
+  </Step>
+</Steps>
+
+## Build production installers
+
+To package a signed, distributable installer, run one of the following commands. The output is placed in the `release/` directory.
+
+<CodeGroup>
+
+```bash All platforms
+npm run dist
+```
+
+```bash macOS only
+npm run dist:mac
+```
+
+```bash Windows only
+npm run dist:win
+```
+
+```bash Linux only
+npm run dist:linux
+```
+
+</CodeGroup>
+
+<Tip>
+  Cross-platform builds work best when run on the target OS. Building a Windows installer on macOS, for example, will work in many cases but is not officially supported.
+</Tip>
+
+## App data and API key storage
+
+Lyria Studio stores your Gemini API key and other settings in the Electron user-data directory for your platform:
+
+| Platform | Default location |
+|---|---|
+| macOS | `~/Library/Application Support/Lyria Studio/` |
+| Windows | `%APPDATA%\Lyria Studio\` |
+| Linux | `~/.config/Lyria Studio/` |
+
+Your API key is persisted locally so you do not need to re-enter it each time you launch the app.
+
+<Warning>
+  The API key is stored in plain text in the user-data directory. Do not use a shared or public machine without understanding this.
+</Warning>

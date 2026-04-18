@@ -1,0 +1,89 @@
+---
+title: "Capture instrumentals and vocals clips to the timeline"
+description: "Record the instrumental stream or commit a generated vocals clip to a timeline track, then layer multiple clips to build up your arrangement."
+---
+
+Capturing turns the live AI output into concrete timeline clips you can arrange, edit, and export. Lyria Studio has two distinct capture paths: one for the continuous instrumental stream, and one for the one-shot vocals clip generated via REST. Both paths drop a clip onto the active track at the current playhead position.
+
+## Before you capture
+
+<Note>
+  You must select an active track in the timeline header before capturing. If no track is active, there is nowhere to place the incoming clip and the capture is silently ignored. Click the track name header to make it active — it highlights to confirm.
+</Note>
+
+## Capturing the instrumental stream
+
+Use this path when your graph includes Prompt or Instrument nodes connected to Output. The capture records incoming PCM audio chunks directly from the live player into a pipeline that assembles them into a stereo `AudioBuffer` at 48 kHz.
+
+<Steps>
+  <Step title="Start a live session">
+    Press **Go Live** in the transport bar. Wait for the status pill to show **Live** before capturing.
+  </Step>
+  <Step title="Press Capture">
+    Click **Capture** in the transport bar, or press **R**. A growing clip appears on the active track, showing the incoming audio waveform in real time.
+  </Step>
+  <Step title="Monitor the growing clip">
+    The clip extends as audio arrives. The waveform preview updates live so you can see the shape of the audio you are recording.
+  </Step>
+  <Step title="Stop capture">
+    Click **Capture** again (or press **R**) to finish. The clip is finalised and placed on the timeline starting at the playhead position where capture began.
+  </Step>
+  <Step title="Playhead advances">
+    After the clip is placed, the playhead moves to the end of the new clip so you are ready to capture the next section immediately.
+  </Step>
+</Steps>
+
+<Note>
+  Instrumental capture has a maximum duration of 10 minutes per clip. If a session runs longer than that, stop and start a new capture to continue recording.
+</Note>
+
+## Capturing a vocals clip
+
+Use this path when your graph includes a Vocals node connected to Output. Vocals are generated as a single clip via a REST call — the clip is ready within seconds of pressing Go Live.
+
+<Steps>
+  <Step title="Add a Vocals node">
+    Open the node palette and add a **Vocals** node, then connect it to the **Output** node.
+  </Step>
+  <Step title="Press Go Live">
+    Click **Go Live**. The vocals generation request is fired immediately in the background as a REST call to `models/lyria-3-pro-preview`.
+  </Step>
+  <Step title="Wait for the clip to be ready">
+    The app receives a `clipReady` event when the model finishes. The generated clip starts playing back through the live audio player automatically so you can preview it.
+  </Step>
+  <Step title="Press Capture Vocals">
+    Click **Capture Vocals** to drop the clip onto the active track at the current playhead position. The playhead advances to the end of the clip.
+  </Step>
+</Steps>
+
+<Tip>
+  You can capture multiple clips in sequence to build up layers. After each capture, the playhead advances to the end of the new clip — just press **Capture** again to start the next one without repositioning manually.
+</Tip>
+
+## Comparing the two capture methods
+
+<Tabs>
+  <Tab title="Instrumental capture">
+    - Records the continuous streaming audio in real time
+    - You control how long the clip is (start and stop manually)
+    - Clip is stereo PCM at 48 kHz
+    - Maximum length: 10 minutes
+    - Requires an instrumental graph path (Prompt or Instrument → Output)
+  </Tab>
+  <Tab title="Vocals capture">
+    - Commits a pre-generated REST clip to the timeline
+    - Clip length is determined by the model
+    - Press **Capture Vocals** any time after the `clipReady` event
+    - Pressing **Capture Vocals** a second time without regenerating produces no clip (the buffer is cleared after the first commit)
+    - Requires a Vocals node connected to Output
+  </Tab>
+</Tabs>
+
+<CardGroup cols={2}>
+  <Card title="Live session" icon="broadcast-tower" href="/guides/live-session">
+    Start and steer a Lyria Realtime session.
+  </Card>
+  <Card title="Vocals" icon="microphone" href="/guides/vocals">
+    Configure the Vocals node for AI vocal generation.
+  </Card>
+</CardGroup>

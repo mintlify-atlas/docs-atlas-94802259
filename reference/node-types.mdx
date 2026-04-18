@@ -1,0 +1,126 @@
+---
+title: "Node type reference: graph editor nodes and connections"
+description: "Full reference for all four node types in Lyria Studio's graph editor, including fields, valid connections, edge weights, and which AI models each node uses."
+---
+
+The graph editor is the core of Lyria Studio. You build a signal graph by placing nodes and drawing connections between them. Each connection carries a weight that influences how strongly a node's content affects the generated audio. There are four node types: Prompt, Instrument, Vocals, and Output. Every graph always contains exactly one Output node, which acts as the root of the graph and cannot be deleted.
+
+## Prompt node
+
+A Prompt node lets you describe the music you want in natural language. The text you enter is sent to the generation model as a weighted prompt, so you can have multiple Prompt nodes connected at different strengths to blend musical ideas.
+
+**Fields**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `text` | string | The prompt text sent to the Lyria generation model. |
+
+**Valid connections**
+
+A Prompt node can connect to Instrument nodes, Vocals nodes, and the Output node.
+
+<Tip>
+Use multiple Prompt nodes with different weights to blend musical directions. A node with weight `0.8` will influence the output more than one set to `0.3`.
+</Tip>
+
+---
+
+## Instrument node
+
+An Instrument node pins the generated music to a specific instrument timbre. Connecting an Instrument node to the Output steers the model toward that sound.
+
+**Fields**
+
+| Field | Type | Options |
+|-------|------|---------|
+| `instrument` | enum | `Piano`, `Guitar`, `Strings`, `Brass`, `Synth Pad`, `Drums`, `Bass`, `Choir`, `Flute`, `Ambient` |
+
+**Valid connections**
+
+An Instrument node can connect to the Output node only. Instrument nodes cannot connect directly to Vocals nodes.
+
+---
+
+## Vocals node
+
+A Vocals node generates a one-shot a cappella clip using a REST call to `models/lyria-3-pro-preview`. This is different from the streaming model used for instrumental generation. When you add a Vocals node to the graph, the app automatically injects a strict a cappella system prompt at high weight, which instructs the model to produce human singing voices only with no instruments, backing tracks, sound effects, or vocal percussion.
+
+**Fields**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `lyrics` | string | The lyrics or vocal content you want the model to sing. |
+| `additionalPrompts` | string | Extra style or character guidance layered on top of the lyrics. |
+
+**Valid connections**
+
+A Vocals node can connect to the Output node only. Vocals nodes cannot connect directly to Instrument nodes.
+
+<Note>
+The system prompt enforcing a cappella output is always included automatically — you do not need to add it yourself. Any non-vocal sounds, beatboxing, or vocal percussion are explicitly prohibited by this prompt.
+</Note>
+
+---
+
+## Output node
+
+The Output node is the sink of the entire graph. All audio ultimately flows through it. It has no configurable fields — it is always labeled "Output" and is always present when the app starts. You cannot delete it.
+
+**Fields**
+
+None. The Output node has no user-configurable properties.
+
+**Valid connections**
+
+Any other node type can connect to the Output node.
+
+---
+
+## Edge weights
+
+Every connection (edge) between two nodes has a weight. The default weight is `1.0`, and you can set it anywhere from `0.0` upward.
+
+<Steps>
+  <Step title="Select an edge">
+    Click on a connection line in the graph editor to select it.
+  </Step>
+  <Step title="Adjust the weight">
+    Use the **Properties Panel** to change the weight value. Higher values make that node's contribution stronger; lower values reduce its influence.
+  </Step>
+</Steps>
+
+| Weight value | Effect |
+|---|---|
+| `0.0` | No influence — effectively mutes that connection |
+| `0.5` | Half strength |
+| `1.0` | Default, full strength |
+| `>1.0` | Stronger-than-default influence |
+
+---
+
+## Connection rules
+
+<AccordionGroup>
+  <Accordion title="What is and isn't allowed">
+
+**No self-loops.** A node cannot connect to itself.
+
+**Vocals ↔ Instrument connections are not allowed.** Vocals nodes and Instrument nodes cannot be connected to each other directly.
+
+**All other node pairs can connect** in the direction of the Output node (i.e., toward the sink).
+
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Models used
+
+| Node type | Model |
+|-----------|-------|
+| Instrumental streaming (live session) | `models/lyria-realtime-exp` |
+| Vocals clip generation | `models/lyria-3-pro-preview` |
+
+<Info>
+When a Vocals node is present in the graph, the app automatically switches from the streaming realtime model to the REST-based `lyria-3-pro-preview` model for that generation.
+</Info>

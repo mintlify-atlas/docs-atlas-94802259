@@ -1,80 +1,132 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: "Get started with Lyria Studio in under 10 minutes"
+description: "Step-by-step guide from generating a Gemini API key to building your first node graph, starting a live session, capturing audio, and exporting to WAV."
 ---
 
-## Get started in three steps
+This guide walks you through everything from setting up your API key to capturing your first live instrumental and exporting a finished WAV file. If you have not installed Lyria Studio yet, start with the [installation guide](/installation).
 
-Get your documentation site running locally and make your first customization.
+<Steps>
+  <Step title="Generate a Gemini API key">
+    Lyria Studio uses Google Lyria Realtime for AI music generation, which requires a Gemini API key.
 
-### Step 1: Set up your local environment
+    1. Go to [Google AI Studio](https://aistudio.google.com/).
+    2. Sign in with a Google account.
+    3. Click **Get API key** and create a new key.
+    4. Copy the key — you will paste it into Lyria Studio in the next step.
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+    <Note>
+      Lyria Studio stores the key locally in the Electron user-data directory, so you only need to do this once. You will not be prompted for it again after saving.
+    </Note>
+  </Step>
 
-### Step 2: Deploy your changes
+  <Step title="Enter your API key in Lyria Studio">
+    1. Launch Lyria Studio.
+    2. In the toolbar at the top of the window, find the API key field.
+    3. Paste your key and click **Save Key**.
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    The toolbar will confirm that the key has been saved. If you see an error, double-check that you copied the full key without trailing whitespace.
+  </Step>
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+  <Step title="Add a Prompt node and an Instrument node">
+    The graph editor is the blank canvas in the center of the window. You build a signal chain here by adding nodes and connecting them.
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+    1. Open the **node palette** (the panel on the left side of the graph editor).
+    2. Click **Prompt** to add a Prompt node to the canvas.
+    3. Click **Instrument** to add an Instrument node.
 
-### Step 3: Go live
+    The Prompt node holds the text description of what you want the AI to generate. The Instrument node lets you select a specific instrument sound (Piano, Guitar, Strings, Brass, Synth Pad, Drums, Bass, Choir, Flute, or Ambient) to bias the generation.
+  </Step>
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+  <Step title="Connect Prompt → Instrument → Output">
+    Every graph needs an **Output** node as the final destination. An Output node is added to the canvas by default.
 
-## Next steps
+    1. Drag from the output handle on the right edge of the **Prompt** node to the input handle on the left edge of the **Instrument** node.
+    2. Drag from the output handle of the **Instrument** node to the input handle of the **Output** node.
 
-Now that you have your docs running, explore these key features:
+    You should now have a chain: `Prompt → Instrument → Output`. Each connection has a **weight** you can adjust — drag the handle on the edge label to increase or decrease how strongly that path influences the mix.
+  </Step>
+
+  <Step title="Type a musical description in the Prompt node">
+    Click on the **Prompt** node to select it, then type a description in the text field. Be specific — Lyria responds well to detailed prompts.
+
+    Some examples to get you started:
+
+    - `chill lo-fi hip hop with rhodes piano, soft vinyl crackle`
+    - `driving 4/4 techno with a hard kick and pulsing synth bass`
+    - `ambient drone in A minor, slow evolving pads, no percussion`
+
+    The prompt is sent to the model live, so you can edit it while the session is running and hear the change within a second or two.
+  </Step>
+
+  <Step title="Set the BPM in the transport bar">
+    Find the **transport bar** at the bottom of the window. Click the BPM field and type your target tempo, then press Enter.
+
+    The BPM is included in the generation parameters and affects the rhythmic feel of the output. You can change it while a session is running — the model will adapt on the next prompt update.
+  </Step>
+
+  <Step title="Press Go Live">
+    Click the **Go Live** button in the toolbar. Lyria Studio connects to Google Lyria Realtime using your graph and BPM, and audio starts streaming within a few seconds.
+
+    You will see a live waveform visualizer in the toolbar while the session is active. If the button shows an error instead of connecting, check that:
+
+    - Your API key is saved correctly
+    - At least one node chain reaches the Output node
+    - You have an active internet connection
+
+    <Tip>
+      Edit the text in any Prompt node while live to steer the generation in real time. Changes are debounced by about 600 ms and then sent to the model automatically.
+    </Tip>
+  </Step>
+
+  <Step title="Press Capture to record onto the timeline">
+    When you hear something you want to keep, click **Capture** in the toolbar. Lyria Studio starts recording the live audio stream and placing it on the active timeline track.
+
+    Click **Capture** again to stop recording. The clip appears on the timeline at the playhead position, labeled `Instr 1` (or the next number in sequence).
+
+    You can start and stop capture as many times as you like during a live session to collect the best moments.
+  </Step>
+
+  <Step title="Stop the session and arrange your clips">
+    When you are done capturing, click **Stop** in the toolbar to end the live session.
+
+    Switch to the **timeline** view to see your captured clips. From here you can:
+
+    - Drag clips to reorder them
+    - Trim clip edges
+    - Draw volume and pitch automation on the automation lane below each clip
+    - Add more tracks and mix captured instrumentals with vocals clips
+
+    A few keyboard shortcuts to know:
+
+    | Key | Action |
+    |---|---|
+    | `Space` | Play / pause |
+    | `R` | Start / stop recording |
+    | `S` | Split clip at playhead |
+  </Step>
+
+  <Step title="Export to WAV">
+    When your arrangement is ready, click **Export** in the toolbar. Lyria Studio mixes down all timeline tracks and saves the result as a WAV file.
+
+    <Note>
+      Compressed audio export (MP4/AAC or WebM/Opus) is available when the codec is supported by the Electron runtime on your machine. WAV export is always available regardless of platform.
+    </Note>
+  </Step>
+</Steps>
+
+## What to explore next
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Graph editor concepts" icon="diagram-project" href="/concepts/graph-editor">
+    Understand how nodes, edges, and weights shape generation
+  </Card>
+  <Card title="Vocals guide" icon="microphone" href="/guides/vocals">
+    Add a Vocals node to generate a cappella clips alongside your instrumentals
+  </Card>
+  <Card title="Timeline" icon="film" href="/concepts/timeline">
+    Multi-track editing, automation lanes, and clip operations
+  </Card>
+  <Card title="Keyboard shortcuts" icon="keyboard" href="/reference/keyboard-shortcuts">
+    Complete list of keyboard shortcuts for faster workflow
+  </Card>
 </CardGroup>
-
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>

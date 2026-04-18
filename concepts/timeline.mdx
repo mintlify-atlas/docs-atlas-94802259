@@ -1,0 +1,123 @@
+---
+title: "Timeline: tracks, clips, automation, and playback"
+description: "Learn how Lyria Studio's multi-track timeline works — tracks, clips, automation lanes, the playhead, mute/solo, BPM, and clip editing operations."
+---
+
+The timeline is Lyria Studio's multi-track workspace where captured audio becomes a finished arrangement. After you capture audio from a live session or generate a vocals clip, those clips land on timeline tracks. From there you can reorder them, trim their edges, split them, adjust volume and pitch automation, and mix the final result. The timeline is free-form — clips can be placed at any point in time regardless of BPM.
+
+## Tracks
+
+Each track is a horizontal lane that holds one or more audio clips. Tracks appear stacked vertically, with a header column on the left showing controls and a scrollable lane on the right.
+
+Every track has:
+
+- **Name** — editable label (defaults to A1, A2, A3, and so on)
+- **Color** — assigned automatically from a fixed set: green, blue, amber, pink, violet, cyan, orange, emerald
+- **Volume** — a fader controlling the track's output level (default: 0.8)
+- **Mute** — silences the track without removing it from the mix
+- **Solo** — plays only this track (and any other soloed tracks), muting everything else
+
+To add a track, click **+ Add Track** at the bottom of the track header column. New tracks pick the next color in the rotation automatically.
+
+## Clips
+
+A clip is a region of audio placed on a track at a specific point in time. Each clip holds:
+
+| Property | Description |
+|---|---|
+| `startSec` | Where the clip begins on the timeline, in seconds |
+| `durationSec` | How long the clip plays, in seconds |
+| `cropStartSec` | Trim offset into the audio buffer — how far into the recorded audio playback begins |
+| `label` | Display name shown on the clip |
+| `color` | Visual color of the clip block |
+| `speed` | Playback speed multiplier (1.0 = normal) |
+| `isReversed` | Whether the clip plays in reverse |
+
+Clips also support optional **volume automation** and **pitch automation** lanes (see below).
+
+### Clip operations
+
+<Steps>
+  <Step title="Move a clip">
+    Drag the clip body left or right to reposition it in time. You can also drag it up or down to move it to a different track.
+  </Step>
+  <Step title="Trim a clip">
+    Drag the left or right edge of a clip to shorten it. Trimming adjusts `cropStartSec` (left edge) or `durationSec` (right edge) without discarding the underlying audio — you can expand the clip again later.
+  </Step>
+  <Step title="Split a clip at the playhead">
+    Move the playhead to the point where you want to cut, make sure the track containing the clip is active, then press **S**. The clip splits into two independent clips at that position. Any automation points are split proportionally.
+  </Step>
+  <Step title="Reverse a clip">
+    Right-click a clip and choose **Reverse**, or use the clip context menu. The clip plays its audio backwards. Automation lanes are mirrored accordingly.
+  </Step>
+</Steps>
+
+## The playhead
+
+The playhead is a vertical line that marks the current playback position. It moves forward in real time while audio is playing.
+
+- **Click in the time ruler** (the bar showing seconds at the top of the lane area) to jump the playhead to that position.
+- **Drag the playhead** directly to scrub through the timeline. If playback was running when you grabbed it, it resumes from the new position on release.
+- **Space** plays or pauses playback from the current playhead position.
+
+<Tip>
+  During playback the timeline auto-scrolls to keep the playhead visible. The view jumps forward when the playhead reaches within 15% of the right edge.
+</Tip>
+
+## Automation lanes
+
+Both tracks and clips support two types of automation:
+
+<Tabs>
+  <Tab title="Volume automation">
+    Volume automation shapes the output level over time. Breakpoints have a `value` between 0 and 1, where 1 is full volume and 0 is silence. For clips, time is relative to the start of the clip. For tracks, time is absolute timeline time.
+  </Tab>
+  <Tab title="Pitch automation">
+    Pitch automation shifts pitch over time, measured in semitones. Breakpoints can be positive (pitch up) or negative (pitch down). Like volume automation, clip pitch is relative to clip start and track pitch is absolute.
+  </Tab>
+</Tabs>
+
+To edit automation, click the **AUTO** button in the transport bar to enable automation mode. In this mode, left-clicking in a clip or track lane adds a new breakpoint. Drag an existing breakpoint to reposition it in time and value. Right-click a breakpoint to remove it.
+
+## Mute and solo
+
+Use the **M** button on a track header to mute that track. Muted tracks are excluded from playback and from the exported mix.
+
+Use the **S** button to solo a track. When at least one track is soloed, only soloed tracks play back. Solo is useful for checking individual elements in isolation without deleting other tracks.
+
+<Note>
+  Mute and solo are non-destructive. They do not change the clips or automation data on a track — only whether the track contributes to the current playback.
+</Note>
+
+## BPM
+
+The BPM value is set in the transport bar at the top of the app. It defaults to 120. BPM affects the tempo of live generation sessions — the AI model uses it as a rhythmic reference when you press **Go Live**.
+
+<Info>
+  The timeline itself is free-form and does not snap clips to a beat grid. BPM only influences the AI generation session, not the visual layout of clips on the timeline.
+</Info>
+
+BPM is clamped between 20 and 300. Changes are recorded in the undo history.
+
+## Zoom and scroll
+
+- **Scroll horizontally** with the scroll wheel or trackpad to move through time.
+- **Zoom in and out** by holding **Ctrl/Cmd** while scrolling. The view zooms centered on the cursor position.
+- The zoom level controls pixels per second and is clamped between 20 and 500 px/s.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Capturing audio" icon="microphone" href="/guides/capturing-audio">
+    How to capture instrumentals and vocals clips from a live session
+  </Card>
+  <Card title="Automation guide" icon="chart-line" href="/guides/automation">
+    Draw and edit volume and pitch automation in detail
+  </Card>
+  <Card title="Exporting your mix" icon="file-audio" href="/guides/exporting">
+    Export the final mix to WAV or compressed audio
+  </Card>
+  <Card title="Graph editor" icon="diagram-project" href="/concepts/graph-editor">
+    Build the AI generation graph that feeds the timeline
+  </Card>
+</CardGroup>

@@ -1,0 +1,53 @@
+---
+title: "Lyria Studio: AI music creation with a graph editor"
+description: "Lyria Studio is an open-source Electron app for AI music creation. Build node graphs, stream Google Lyria Realtime audio, capture clips, and export your mix."
+---
+
+Lyria Studio is a desktop music tool that gives you a visual graph editor for directing Google Lyria Realtime AI, a multi-track timeline for arranging captured audio, and live capture tools for turning AI generations into something you can edit and export. It is open source, runs locally on macOS, Windows, and Linux, and is built on Electron, React, and TypeScript. You bring your own Gemini API key — everything else runs on your machine.
+
+<Note>
+  Lyria Studio is currently in beta. Some workflows are still early-stage and closer to a creative prototype than a finished production tool. If you run into anything unexpected, [open an issue on GitHub](https://github.com/AlanRoybal/lyria-studio/issues).
+</Note>
+
+## Core features
+
+Lyria Studio is built around two main workspaces: the **graph editor** and the **timeline**.
+
+The **graph editor** is where you describe what the AI should generate. You connect nodes — `Prompt`, `Instrument`, `Vocals`, and `Output` — to build a signal chain. Weighted edges let you blend multiple prompt influences with adjustable strength. When you press **Go Live**, the graph drives a live Google Lyria Realtime session that streams audio continuously.
+
+The **timeline** is where generated audio becomes a song. You can capture instrumental audio directly from the live stream, generate standalone vocals clips, and arrange everything on multi-track lanes. From there you trim, reorder, automate volume and pitch, and export to WAV.
+
+| Feature | Description |
+|---|---|
+| Node-based graph editor | Connect `Prompt`, `Instrument`, `Vocals`, and `Output` nodes to shape generation |
+| Weighted connections | Blend multiple prompt influences with adjustable per-edge strength |
+| Live music streaming | Google Lyria Realtime streams audio continuously while you direct the graph |
+| Vocals generation | Separate flow for lyrics and voice-direction prompts using a dedicated vocals model |
+| Multi-track timeline | Arrange clips with a playhead, multiple tracks, and split editing |
+| Clip automation lanes | Draw volume and pitch automation per clip |
+| Live instrumental capture | Record the live stream directly onto the timeline at any moment |
+| Vocals capture | Commit a generated vocals clip into the active track with one click |
+| Export | Mix down to WAV or compressed audio formats when supported by the runtime |
+
+## Requirements
+
+- A [Google Gemini API key](https://aistudio.google.com/) — required for all generation features
+- macOS, Windows, or Linux (x64; macOS also supports arm64)
+- Node.js 20 or later if you are building from source
+
+## Get started
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/installation">
+    Download a prebuilt release or build Lyria Studio from source
+  </Card>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Get your API key, build your first graph, and start a live session
+  </Card>
+  <Card title="Graph editor" icon="diagram-project" href="/concepts/graph-editor">
+    Learn how nodes and weighted edges control AI generation
+  </Card>
+  <Card title="Timeline" icon="film" href="/concepts/timeline">
+    Arrange captured clips, edit automation, and mix your song
+  </Card>
+</CardGroup>

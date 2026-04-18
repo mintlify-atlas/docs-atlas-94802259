@@ -1,0 +1,83 @@
+---
+title: "Automate volume and pitch across clips and tracks"
+description: "Draw breakpoint envelopes for volume and pitch on individual clips or entire tracks to create dynamic fades, swells, and pitch transitions over time."
+---
+
+Automation in Lyria Studio is a breakpoint-based envelope system. You place points on a lane below a clip or track, and the audio engine interpolates linearly between them during playback. Both volume and pitch support automation at two levels — the track level, which applies across all clips on a track, and the clip level, which applies within a single clip relative to its start.
+
+## How automation is applied at playback
+
+When you press play, the `AudioEngine` collects all breakpoints from both the track envelope and the clip envelope and schedules them on the Web Audio API using `linearRampToValueAtTime`. The final gain at any moment is:
+
+```
+final gain = track.volume × track volume envelope × clip volume envelope
+```
+
+Pitch automation follows the same two-layer logic. Track pitch and clip pitch values are summed, and the result (in semitones) is applied to the source node's `detune` parameter (multiplied by 100, since the Web Audio API uses cents). This means a track pitch automation value of `12` and a clip pitch value of `0` produces one octave up.
+
+## Volume automation
+
+Volume breakpoints use values from `0` (silence) to `1` (full amplitude at the track's base volume). The final output level also depends on the track's base `volume` property, so a clip envelope value of `1` does not mean maximum possible volume — it means "no additional attenuation" relative to the track volume setting.
+
+## Pitch automation
+
+Pitch breakpoints use semitone values. Positive values shift pitch up; negative values shift pitch down.
+
+<Note>
+  Pitch automation values are in semitones. For example, `12` shifts one octave up, `-12` shifts one octave down, and `7` shifts up a perfect fifth.
+</Note>
+
+## Using the envelope editor
+
+<Steps>
+  <Step title="Switch to automation mode">
+    Click the **AUTO** button in the transport bar to enter automation editing mode. The automation lanes become visible below each clip and track headers.
+  </Step>
+  <Step title="Select the lane to edit">
+    Each clip shows separate lanes for volume and pitch automation. Click the lane label to select which parameter you want to edit.
+  </Step>
+  <Step title="Add a breakpoint">
+    Left-click anywhere on the automation lane to place a new breakpoint at that time and value position.
+  </Step>
+  <Step title="Move a breakpoint">
+    Left-click and drag an existing breakpoint to reposition it in time or value.
+  </Step>
+  <Step title="Remove a breakpoint">
+    Right-click an existing breakpoint to delete it.
+  </Step>
+  <Step title="Exit automation mode">
+    Click the **AUTO** button again to return to normal clip editing mode.
+  </Step>
+</Steps>
+
+## Track-level vs. clip-level automation
+
+<Tabs>
+  <Tab title="Track-level automation">
+    Track automation applies to the entire track across its full duration. It is useful for overall volume shaping — for example, fading the whole track in at the start of a song or out at the end.
+
+    Track pitch automation shifts all clips on the track by the same amount, which is useful for key changes that span multiple clips.
+  </Tab>
+  <Tab title="Clip-level automation">
+    Clip automation applies only within the clip, relative to its start time. Use clip volume automation for per-clip fades, swells, or ducking. Use clip pitch automation for expressive details like a note bend that only applies to one section.
+
+    When you split a clip, automation points are divided at the split point. Each resulting clip inherits only the points within its time range.
+  </Tab>
+</Tabs>
+
+<Tip>
+  Use track-level automation for broad strokes — overall volume arcs and global pitch shifts. Reserve clip-level automation for detail work like a fade-in on one clip or a subtle pitch drift within a specific phrase. Keeping the two layers separate makes it easier to adjust either one without disturbing the other.
+</Tip>
+
+## Automation and export
+
+Automation is fully applied during export. The `renderMixdown` function uses the same `sampleEnvelope` logic as live playback, so the exported WAV or compressed file matches exactly what you hear during playback.
+
+<CardGroup cols={2}>
+  <Card title="Exporting" icon="download" href="/guides/exporting">
+    Export your mix with automation baked in.
+  </Card>
+  <Card title="Live session" icon="broadcast-tower" href="/guides/live-session">
+    Go live and generate audio to automate.
+  </Card>
+</CardGroup>

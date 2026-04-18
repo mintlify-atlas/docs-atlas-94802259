@@ -1,0 +1,91 @@
+---
+title: "Export your Lyria Studio mix to WAV or compressed audio"
+description: "Render your full timeline mix offline to a WAV file or a compressed MP4/WebM file, with all automation, mute, and solo states applied."
+---
+
+When you are ready to share your mix, Lyria Studio can render it to an audio file. The export reads every non-muted track, applies all volume and pitch automation, and writes the result to a file you choose. Two export formats are available: WAV (always available) and a compressed format (MP4 or WebM, depending on your platform's codec support).
+
+## Export formats
+
+<Tabs>
+  <Tab title="WAV (48 kHz, 16-bit)">
+    WAV export uses an `OfflineAudioContext` to render the full mix faster than real time. The result is a 48 kHz, 16-bit stereo PCM WAV file — the same sample rate used throughout Lyria Studio's audio pipeline. This format is always available regardless of platform or codec support.
+
+    The button label in the export menu reads **WAV (48 kHz, 16-bit)**.
+  </Tab>
+  <Tab title="Compressed (MP4 / WebM)">
+    Compressed export uses the browser's `MediaRecorder` API to encode the rendered audio. Lyria Studio tries formats in this order:
+
+    1. `audio/mp4;codecs=mp4a.40.2` — MP4 with AAC-LC (preferred)
+    2. `audio/mp4` — MP4 (any supported AAC codec)
+    3. `audio/webm;codecs=opus` — WebM with Opus
+    4. `audio/webm` — WebM (any supported codec)
+
+    The first format that `MediaRecorder.isTypeSupported()` accepts is used. If none are supported, compressed export is not offered.
+
+    Unlike WAV, compressed export encodes in real time at the buffer's playback speed — it is not offline-faster-than-real-time. A progress indicator shows the encoding percentage.
+  </Tab>
+</Tabs>
+
+## What gets included in the export
+
+The export respects your mute and solo states:
+
+- **Muted tracks** are excluded entirely.
+- **Soloed tracks**: if any track is soloed, only soloed tracks are included. All other tracks are excluded even if they are not explicitly muted.
+- All clips on included tracks are rendered with their volume and pitch automation applied.
+- Clip speed and crop settings are honoured.
+
+## Steps to export
+
+<Steps>
+  <Step title="Arrange your clips">
+    Make sure all clips are on the timeline and positioned where you want them. Check that mute and solo states are set correctly.
+  </Step>
+  <Step title="Click Export Song">
+    Click **Export Song** in the toolbar (top-right area). A small menu opens with the available formats.
+  </Step>
+  <Step title="Choose a format">
+    Select **WAV (48 kHz, 16-bit)** for a lossless file, or the compressed option if it is available on your machine. If compressed export is unavailable, only WAV is shown as clickable.
+  </Step>
+  <Step title="Choose a save location">
+    A native file-save dialog opens. Pick a folder and filename, then confirm. The suggested filename includes a timestamp, e.g. `lyria-mix-2026-04-18-14-32-00.wav`.
+  </Step>
+  <Step title="Wait for the render">
+    For WAV, the render is offline and completes in a fraction of the mix's duration. For compressed formats, the toolbar button shows an encoding progress percentage. The button is disabled during export to prevent concurrent renders.
+  </Step>
+</Steps>
+
+<Note>
+  Export respects mute and solo. Muted tracks are excluded from the render. If any track is soloed, only soloed tracks are rendered — all others are skipped regardless of their mute state.
+</Note>
+
+<Warning>
+  Compressed export (MP4 or WebM) depends on codec support in the Electron runtime on your machine. If the Electron build does not expose a supported `MediaRecorder` format, only WAV export is available. WAV is always a safe choice for archiving or re-importing into a DAW.
+</Warning>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="The Export Song button is greyed out">
+    The button is disabled when there are no clips with audio on the timeline. Add at least one captured clip, then try again.
+  </Accordion>
+  <Accordion title="Compressed export is not in the menu">
+    Your Electron runtime does not support any of the candidate `MediaRecorder` formats. Use WAV export instead, which has no codec dependency.
+  </Accordion>
+  <Accordion title="The exported file is silent">
+    Check that at least one track is not muted and not excluded by a solo. If every track is muted or only non-soloed tracks exist when a solo is active, the rendered mix will be silent.
+  </Accordion>
+  <Accordion title="The exported file sounds different from playback">
+    Export and live playback use the same `sampleEnvelope` automation logic, so they should sound identical. If there is a difference, it may be due to pitch-processed buffer caching — pitch automation on very long clips is pre-rendered before export. Re-exporting after making any automation changes should resolve discrepancies.
+  </Accordion>
+</AccordionGroup>
+
+<CardGroup cols={2}>
+  <Card title="Automation" icon="sliders" href="/guides/automation">
+    Apply volume and pitch automation before exporting.
+  </Card>
+  <Card title="Capturing audio" icon="circle-dot" href="/guides/capturing-audio">
+    Build up your timeline clips before export.
+  </Card>
+</CardGroup>

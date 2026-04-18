@@ -1,0 +1,98 @@
+---
+title: "Lyria Studio configuration file and local storage reference"
+description: "Reference for Lyria Studio's config.json file, API key storage, tutorial state, update tracking fields, and how automatic update checks work."
+---
+
+Lyria Studio stores a single JSON configuration file on your local machine in the Electron user-data directory. This file persists your API key, tutorial state, update history, and engagement tracking across app restarts. You do not normally need to edit this file manually — the app manages it automatically — but knowing where it lives and what it contains can be useful for troubleshooting or resetting your setup.
+
+---
+
+## Finding the config file
+
+The config file is named `config.json` and lives in a platform-specific location:
+
+<Tabs>
+  <Tab title="macOS">
+
+```
+~/Library/Application Support/Lyria Studio/config.json
+```
+
+  </Tab>
+  <Tab title="Windows">
+
+```
+%APPDATA%\Lyria Studio\config.json
+```
+
+  </Tab>
+  <Tab title="Linux">
+
+```
+~/.config/Lyria Studio/config.json
+```
+
+  </Tab>
+</Tabs>
+
+---
+
+## Config fields
+
+All fields are optional. If a field is missing, the app treats it as if it has a default value.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `apiKey` | `string` | Your Gemini API key. Stored locally and sent to the Google Lyria APIs during live sessions and vocals generation. |
+| `hasCompletedTutorial` | `boolean` | Set to `true` after you dismiss the onboarding tutorial. While `false` or absent, the tutorial is shown on startup. |
+| `pendingPostUpdateRelease` | object | Stores release info that should be shown after an automatic update installs. Cleared once you view the release notes. |
+| `lastSeenReleaseNotesVersion` | `string` | The version string of the last release notes you have been shown. Used to avoid showing the same notes twice. |
+| `githubStarPrompt` | object | Tracks accumulated app-open time and whether you have dismissed the GitHub star prompt. |
+
+### githubStarPrompt fields
+
+| Sub-field | Type | Description |
+|-----------|------|-------------|
+| `accumulatedOpenMs` | `number` | Total milliseconds the app has been open across all sessions. The star prompt appears after 5 minutes of accumulated use. |
+| `dismissed` | `boolean` | Set to `true` when you dismiss the prompt. Once dismissed, the prompt never appears again. |
+
+---
+
+## Automatic update behavior
+
+Lyria Studio checks for newer releases on GitHub every time it starts.
+
+<Steps>
+  <Step title="Startup check">
+    When the main window finishes loading, the app queries GitHub for the latest release using `electron-updater`.
+  </Step>
+  <Step title="Update available notification">
+    If a newer version is found, a popup appears in the app with the version number, release notes, and a link to the GitHub releases page.
+  </Step>
+  <Step title="Manual download">
+    Clicking the link opens the releases page in your browser. You download and install the new version yourself — the app does not download or install updates automatically.
+  </Step>
+  <Step title="Post-update release notes">
+    After you install a new version and open it for the first time, the app shows release notes for that version. This information comes from either the `pendingPostUpdateRelease` config field or a set of bundled release notes built into the app.
+  </Step>
+</Steps>
+
+You can also check for updates manually at any time using the **Updates** button in the toolbar.
+
+<Info>
+Auto-download and auto-install are both disabled. The `autoDownload` flag is set to `false` and `autoInstallOnAppQuit` is set to `false`. All updates require a manual download from the GitHub releases page.
+</Info>
+
+---
+
+## Resetting your configuration
+
+If you need to start fresh — for example, to re-enter your API key or re-run the tutorial — you can delete `config.json`. The app will recreate it with default values the next time it starts.
+
+<Warning>
+The API key is stored in plain text inside `config.json`. Do not share this file or commit it to version control, as doing so would expose your Gemini API key.
+</Warning>
+
+<Note>
+Deleting `config.json` resets your API key, tutorial completion state, and all update tracking. You will need to re-enter your API key in the app settings after doing this.
+</Note>

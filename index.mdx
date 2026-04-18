@@ -1,97 +1,65 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "Lyria Studio: AI-powered desktop music creation"
+description: "Lyria Studio is a node-based desktop app that streams AI music via Google Lyria Realtime. Build a node graph, capture clips, arrange on a timeline, and export."
 ---
 
-## Setting up
+Lyria Studio is a desktop music tool that connects Google Lyria Realtime AI to a visual graph editor and multi-track timeline. Sketch out AI-generated instrumentals and vocals, capture the audio you like, arrange clips, and export a finished mix — all without leaving the app.
 
-Get your documentation site up and running in minutes.
-
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/installation">
+    Download Lyria Studio or build from source on macOS, Windows, or Linux
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Get your Gemini API key, build your first graph, and go live in minutes
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Graph editor" icon="diagram-project" href="/concepts/graph-editor">
+    Learn how the node-based graph controls AI music generation
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Timeline" icon="film" href="/concepts/timeline">
+    Arrange captured clips, edit automation, and mix your song
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+## How Lyria Studio works
 
-Everything you need to create world-class documentation.
+Lyria Studio is built around two main workspaces: the **graph editor** and the **timeline**.
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+In the graph editor you connect nodes — prompts, instruments, vocals, and an output — to describe what the AI should generate. Weighted connections let you blend multiple influences. When you press **Go Live**, the graph drives a live Google Lyria Realtime session that streams audio continuously.
 
-## Need inspiration?
+The timeline is where captured audio becomes a song. You can capture instrumental audio directly from the live stream, generate standalone vocals clips, and drop everything onto multi-track lanes. From there you trim, reorder, automate volume and pitch, and export to WAV or compressed audio.
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+<Steps>
+  <Step title="Get a Gemini API key">
+    Visit [Google AI Studio](https://aistudio.google.com/) and create a free API key. Lyria Studio uses this key to connect to Google Lyria Realtime.
+  </Step>
+  <Step title="Install and open Lyria Studio">
+    Download the installer for your platform or clone the repo and run `npm run dev`. Paste your API key into the toolbar and click **Save Key**.
+  </Step>
+  <Step title="Build a graph and go live">
+    Add a **Prompt** node, connect it to the **Output** node, type a musical idea, set your BPM, and press **Go Live** to start streaming AI-generated audio.
+  </Step>
+  <Step title="Capture, arrange, and export">
+    Hit **Capture** to record the live stream onto the timeline, arrange your clips, tweak automation, and export the final mix as a WAV file.
+  </Step>
+</Steps>
+
+<Note>
+  Lyria Studio is currently in beta. Some workflows are still early-stage. If you run into anything unexpected, [open an issue on GitHub](https://github.com/AlanRoybal/lyria-studio/issues).
+</Note>
+
+## Explore the docs
+
+<CardGroup cols={2}>
+  <Card title="Node types" icon="circle-nodes" href="/reference/node-types">
+    Prompt, Instrument, Vocals, and Output — what each node does and how to configure it
+  </Card>
+  <Card title="Live session guide" icon="circle-play" href="/guides/live-session">
+    Step-by-step walkthrough of starting and steering a live generation session
+  </Card>
+  <Card title="Capturing audio" icon="microphone" href="/guides/capturing-audio">
+    How to capture instrumentals and vocals clips onto the timeline
+  </Card>
+  <Card title="Exporting your mix" icon="file-audio" href="/guides/exporting">
+    Export the final mix to WAV or compressed audio formats
+  </Card>
+</CardGroup>

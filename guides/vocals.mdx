@@ -1,0 +1,76 @@
+---
+title: "Generate AI vocals using the Lyria Pro Vocals node"
+description: "Use the Vocals node to produce a cappella AI singing via the Lyria Pro model, then combine it with your instrumental stream on the timeline."
+---
+
+Vocals generation in Lyria Studio is separate from the instrumental stream. While the instrumental path opens a persistent WebSocket connection to `models/lyria-realtime-exp`, vocals are generated through a single REST call to `models/lyria-3-pro-preview`. The result is a self-contained audio clip you can preview and then drop onto any timeline track.
+
+## How the Vocals node works
+
+When the Vocals node is connected to the Output node and you press **Go Live**, the app fires a REST request containing your lyrics, your style direction, and a built-in system prompt. That system prompt enforces a strict a cappella constraint — it instructs the model to produce only human singing voices with no instruments, no backing track, no ambient pads, and no sound effects of any kind. This ensures the output can be layered cleanly over your instrumental stream without bleed.
+
+The generated clip arrives via a `clipReady` event within a few seconds. It plays back immediately through the live audio player so you can preview it, and it stays buffered until you commit it to the timeline with **Capture Vocals**.
+
+## Vocals node fields
+
+| Field | Description |
+|---|---|
+| **Lyrics** | The words the model should sing. Structure them as you would a lyric sheet — line breaks and punctuation are respected. |
+| **Additional prompts** | Style and voice direction, e.g. `"female soul vocalist"`, `"slow and melancholic"`, `"gospel choir"`. The model combines this with your lyrics to shape the vocal performance. |
+
+## Step-by-step workflow
+
+<Steps>
+  <Step title="Add a Vocals node">
+    In the node palette on the left side of the graph editor, click **Vocals** to add a Vocals node to the canvas.
+  </Step>
+  <Step title="Connect it to the Output node">
+    Drag from the Vocals node's output handle to the **Output** node's input handle. This tells the session to include the vocals path.
+  </Step>
+  <Step title="Fill in the lyrics">
+    Click the Vocals node to open its detail panel. Enter your lyrics in the **Lyrics** field. You can write a full verse, a chorus, or a short phrase — the model handles whatever you give it.
+  </Step>
+  <Step title="Add voice direction (optional)">
+    In the **Additional prompts** field, describe the vocal style. Be specific: `"raspy male tenor, breathy and intimate"` gives the model more to work with than `"male vocalist"`.
+  </Step>
+  <Step title="Add shared style context (optional)">
+    Add a **Prompt** node to the canvas and connect it to the **Vocals** node. Anything in that Prompt node contributes shared genre or mood context to the vocals generation request.
+  </Step>
+  <Step title="Press Go Live">
+    Click **Go Live**. The REST call fires immediately. The status pill shows **Connected** while the clip is being generated.
+  </Step>
+  <Step title="Capture the clip">
+    When you hear the clip preview, click **Capture Vocals** to place it on the active track at the current playhead position.
+  </Step>
+</Steps>
+
+<Tip>
+  You can run both a Vocals node and Prompt/Instrument nodes in the same graph. Lyria Studio splits the graph into two paths automatically: the instrumental path opens a streaming session, and the vocals path fires a REST call. The two streams are independent but play back simultaneously so you can hear how they fit together before committing them to the timeline.
+</Tip>
+
+<Note>
+  Vocals nodes and Instrument nodes cannot be connected directly to each other. To share style context between both paths, connect a **Prompt** node to both the Instrument node and the Vocals node. The Prompt node acts as a shared style source without creating a cross-path dependency.
+</Note>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="No audio plays after going live">
+    The `clipReady` event triggers automatic playback. If you hear nothing, check the browser/Electron audio permissions and ensure the Vocals node is properly connected to Output. The node connection must exist before you press Go Live — adding it after does not retroactively trigger a new request.
+  </Accordion>
+  <Accordion title="Pressing Capture Vocals does nothing">
+    The vocals buffer is cleared after the first commit. To get a new clip, stop the session and press **Go Live** again to trigger a fresh REST call.
+  </Accordion>
+  <Accordion title="The model produces instrumental sounds despite using the Vocals node">
+    The app injects a strict a cappella system prompt automatically — you do not need to add it manually. If you still hear instruments, try adding `"a cappella only"` to the **Additional prompts** field as a reinforcement, and check that no Instrument nodes are accidentally connected to the same Output path as the Vocals node.
+  </Accordion>
+</AccordionGroup>
+
+<CardGroup cols={2}>
+  <Card title="Capture audio" icon="circle-dot" href="/guides/capturing-audio">
+    Commit vocals and instrumental clips to the timeline.
+  </Card>
+  <Card title="Live session" icon="broadcast-tower" href="/guides/live-session">
+    Understand session modes and steering controls.
+  </Card>
+</CardGroup>

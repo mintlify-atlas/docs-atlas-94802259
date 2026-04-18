@@ -1,0 +1,94 @@
+---
+title: "Graph editor: nodes, weighted edges, and prompt routing"
+description: "Understand the graph editor — the core workspace where you wire nodes into AI generation pipelines that drive Google Lyria Realtime streaming."
+---
+
+The graph editor is Lyria Studio's main workspace for designing what the AI generates. You build a directed graph of nodes — prompts, instruments, vocals, and an output — then connect them with weighted edges. When you press **Go Live**, Lyria Studio traverses that graph to collect every active prompt and its weight, then feeds the result to Google Lyria Realtime as a live streaming session.
+
+## The canvas
+
+The canvas occupies the right portion of the graph editor panel. It uses a dot-grid background and supports pan (click and drag on empty space) and zoom (scroll wheel, or pinch on a trackpad). Nodes can be freely repositioned by dragging them. You can also zoom in and out using **Ctrl/Cmd + scroll**.
+
+A minimap in the bottom-right corner shows the full graph at a glance, with each node type rendered in a distinct color:
+
+- **Violet** — Prompt nodes
+- **Green** — Instrument nodes
+- **Red/Rose** — Vocals nodes
+- **Amber** — Output node
+
+<Note>
+  Every new project opens with exactly one Output node already on the canvas. The Output node is the root of the graph and cannot be deleted.
+</Note>
+
+## The node palette
+
+The node palette sits on the left side of the graph editor. It lists every node type you can add: **Prompt**, **Instrument**, **Vocals**, and **Output**. To add a node, drag an entry from the palette and drop it anywhere on the canvas — it appears at the position you release it.
+
+To delete a node, drag it from the canvas back over the palette. A **Trash** drop target appears while you are dragging; release the node over it to remove it and all connected edges.
+
+<Tip>
+  You can also delete a selected node with the **Delete** or **Backspace** key.
+</Tip>
+
+## Connecting nodes
+
+Hover over a node to reveal its connection handles — a circle on the left (input) and a circle on the right (output). Drag from a source handle to a target handle on another node to create an edge. Lyria Studio validates the connection before accepting it; invalid connections (such as a direct Vocals-to-Instrument link) are rejected automatically.
+
+<Warning>
+  Vocals nodes and Instrument nodes may never be connected directly to each other. This rule is enforced by the app and cannot be overridden.
+</Warning>
+
+## Weighted edges
+
+Every edge carries a **weight** value (default: 1.0). The weight controls how strongly the upstream node's prompt contributes to the final prompt mix. A weight of 0.0 effectively silences that branch. Weights above 1.0 are allowed and increase influence beyond the default strength.
+
+To adjust a weight, click on an edge to select it, then change the weight value in the **Properties Panel** on the right side of the screen.
+
+<Steps>
+  <Step title="Select an edge">
+    Click anywhere on the edge line between two nodes. The edge highlights to show it is selected.
+  </Step>
+  <Step title="Open the Properties Panel">
+    The Properties Panel on the right side of the screen updates to show the edge's current weight.
+  </Step>
+  <Step title="Set the weight">
+    Type a new value in the weight field. The change takes effect immediately and is recorded in the undo history.
+  </Step>
+</Steps>
+
+## How prompts are computed
+
+Before starting a live session, Lyria Studio walks the graph and collects two separate lists of weighted prompts: one for the instrumental signal path and one for the vocals path.
+
+### Instrumental path
+
+Prompt nodes and Instrument nodes that have a path to the Output node — without passing through a Vocals node — contribute to the **instrumental prompt list**. This list is sent to Google Lyria Realtime, which streams continuous AI-generated audio.
+
+### Vocals path
+
+Vocals nodes (and any Prompt nodes that feed into them) are routed to a separate **REST call** targeting the Lyria Pro model (`models/lyria-3-pro-preview`). This generates a one-shot vocals clip rather than a live stream. A high-weight system prompt is automatically injected to constrain the model to vocals-only output.
+
+<Info>
+  A Prompt node that feeds both an Instrument node and a Vocals node contributes to **both** prompt lists simultaneously. This lets you apply a shared style or mood prompt to the full mix, including both instrumental and vocals tracks.
+</Info>
+
+## Undo and redo
+
+All graph changes — adding nodes, deleting nodes, creating connections, and adjusting edge weights — are recorded in the undo history. Press **Cmd+Z** (macOS) or **Ctrl+Z** (Windows/Linux) to undo, and **Cmd+Shift+Z** / **Ctrl+Shift+Z** to redo.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Node types" icon="circle-nodes" href="/concepts/nodes">
+    Learn what each node type does and which fields it exposes
+  </Card>
+  <Card title="Timeline" icon="film" href="/concepts/timeline">
+    Arrange captured audio clips and mix your song in the timeline
+  </Card>
+  <Card title="Live session guide" icon="circle-play" href="/guides/live-session">
+    Step-by-step walkthrough of starting and steering a live generation session
+  </Card>
+  <Card title="Capturing audio" icon="microphone" href="/guides/capturing-audio">
+    How to capture instrumentals and vocals clips onto the timeline
+  </Card>
+</CardGroup>
